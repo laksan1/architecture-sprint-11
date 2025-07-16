@@ -1,0 +1,61 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+Person(businessUser, "Бизнес-пользователь", "Аналитики, продакт-менеджеры, врачи, финансисты")
+
+System_Boundary(core, "Будущее 2.0 — Платформа данных") {
+
+  Container(selfServicePortal, "Портал самообслуживания", "Metabase / Superset / BI Portal", "Доступ к витринам, self-service отчёты и дашборды")
+  Container(apiGateway, "API Gateway", "Kong / Apigee", "Единая точка входа для API")
+  Container(apiLayer, "API Layer", "GraphQL / REST", "Доступ к данным через контракт")
+  Container(lakehouse, "Data Lakehouse", "Delta Lake / Iceberg", "Центральное хранилище: сырые, очищенные, витрины")
+  Container(datahub, "Data Catalog / Hub", "DataHub / Atlas", "Каталог данных, SLA, lineage, владельцы")
+  Container(eventBus, "Event Streaming Platform", "Kafka / Pulsar", "Обработка событий и real-time потоков")
+  Container(staging, "Raw / Bronze Layer", "S3 / HDFS", "Загрузка данных от источников")
+  Container(dwhLegacy, "Legacy DWH", "MS SQL Server", "Старое хранилище, сохраняется временно")
+  Container(legacyBus, "Legacy Integration Bus", "ESB / Enterprise Service Bus", "Слой интеграций через старую шину данных")
+}
+
+System_Ext(fintech, "Финтех-сервисы")
+System_Ext(clinics, "Клиники / Медцентры")
+System_Ext(medAI, "ИИ-сервисы")
+System_Ext(pharma, "Фармацевтика")
+System_Ext(operatorUI, "Клиентский интерфейс оператора")
+System_Ext(bi, "BI-система (Power BI)")
+
+Rel(businessUser, selfServicePortal, "Работает через")
+Rel(selfServicePortal, apiGateway, "Запросы данных и отчётов")
+
+Rel(apiGateway, apiLayer, "Проксирует API-запросы")
+Rel(apiLayer, lakehouse, "Доступ к витринам и слоям")
+
+Rel(lakehouse, staging, "Хранит сырые данные")
+Rel(lakehouse, datahub, "Регистрирует витрины и метаинформацию")
+Rel(lakehouse, dwhLegacy, "Синхронизация и миграция")
+
+Rel(bi, apiGateway, "Получает данные через")
+Rel(bi, lakehouse, "Использует витрины напрямую")
+
+Rel(eventBus, lakehouse, "Реалтайм потоки в Lakehouse")
+Rel(eventBus, fintech, "Финансовые события")
+Rel(eventBus, medAI, "Медицинские события")
+Rel(eventBus, clinics, "Медицинские данные")
+Rel(eventBus, pharma, "Интеграция фармацевтики")
+
+Rel(operatorUI, staging, "Загружает снимки, мед. данные")
+
+Rel(dwhLegacy, legacyBus, "Отправляет данные в шину")
+Rel(fintech, legacyBus, "Отправляет данные в шину")
+Rel(clinics, legacyBus, "Отправляет данные в шину")
+Rel(medAI, legacyBus, "Отправляет данные в шину")
+
+Rel(legacyBus, dwhLegacy, "Маршрутизирует данные в DWH")
+Rel(legacyBus, fintech, "Передаёт события в финтех-сервисы")
+Rel(legacyBus, clinics, "Передаёт данные в клиники")
+Rel(legacyBus, medAI, "Передаёт данные в ИИ-сервисы")
+
+Rel(legacyBus, lakehouse, "Интеграция и миграция данных в Data Lakehouse")
+
+@enduml

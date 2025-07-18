@@ -19,6 +19,10 @@
 
 ![Скриншот DFD диаграмма Puml](dfd_puml.png)
 
+[DFD диаграмма Drawio](./dfd.drawio)
+
+![Скриншот DFD диаграмма Drawio](./dfd_drawio.png)
+
 ---
 
 ## 🔄 Логика разделения на домены

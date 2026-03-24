@@ -1,0 +1,74 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Врач / Оператор" as User
+actor "Финансовый клиент" as FinClient
+actor "ML специалист" as ML
+actor "Аналитик компании" as Analyst
+
+database "Data Warehouse" as DWH
+
+package "Интеграционная шина (DataHub)" {
+  [Event Bus / API Gateway]
+}
+
+package "Будущее 2.0" {
+  [EMR / PACS / Клиники]
+}
+
+package "Финтех" {
+  [Банковские сервисы]
+  [Кредиты и Платежи]
+}
+
+package "Фармацевтика" {
+  [Логистика и Склад]
+}
+
+package "Медицинское оборудование" {
+  [Телеметрия и Логи устройств]
+}
+
+package "Сервисы ИИ" {
+  [Модели и Аналитика]
+}
+
+package "Data Governance" {
+  [Контроль доступа, качество данных, аудит]
+}
+
+package "Data Warehouse" {
+  [ETL / Интеграция]
+  [Data Marts / BI витрины]
+}
+
+' Ввод данных
+User --> [EMR / PACS / Клиники] : Ввод мед. данных
+FinClient --> [Банковские сервисы] : Платежи, кредиты
+
+' Потоки через шину событий
+[EMR / PACS / Клиники] --> [Event Bus / API Gateway]
+[Банковские сервисы] --> [Event Bus / API Gateway]
+[Кредиты и Платежи] --> [Event Bus / API Gateway]
+[Логистика и Склад] --> [Event Bus / API Gateway]
+[Телеметрия и Логи устройств] --> [Event Bus / API Gateway]
+[Модели и Аналитика] --> [Event Bus / API Gateway]
+
+' Интеграция в Data Warehouse
+[Event Bus / API Gateway] --> [ETL / Интеграция]
+[ETL / Интеграция] --> [Data Marts / BI витрины]
+
+' Обратная связь пользователям
+[Data Marts / BI витрины] --> User : Отчеты, дашборды
+[Data Marts / BI витрины] --> Analyst : Аналитика
+
+' Взаимодействие ИИ
+[EMR / PACS / Клиники] --> [Модели и Аналитика] : Мед данные для обучения
+[Модели и Аналитика] --> [EMR / PACS / Клиники] : Рекомендации и прогнозы
+
+ML --> [Модели и Аналитика] : Обучение и оптимизация моделей
+[Data Governance] --> [Event Bus / API Gateway]
+[Data Governance] --> [Data Warehouse]
+
+@enduml
